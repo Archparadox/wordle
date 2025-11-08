@@ -1,10 +1,12 @@
+import { LETTER_STATUS } from "./constants";
+
 export const sample = (arr) => {
   return arr[Math.floor(Math.random() * arr.length)];
 };
 
 export const range = (start, end, step = 1) => {
   let output = [];
-  if (typeof end === 'undefined') {
+  if (typeof end === "undefined") {
     end = start;
     start = 0;
   }
@@ -13,3 +15,14 @@ export const range = (start, end, step = 1) => {
   }
   return output;
 };
+
+export const setUpLettersInitial = (letters) => {
+  const result = {};
+  for (let letter of letters) {
+    result[letter] = { letter, status: LETTER_STATUS.UNUSED };
+  }
+  return result;
+};
+
+export const isLetter = (key) =>
+  key.length === 1 && /[a-zA-Z]/.test(key);

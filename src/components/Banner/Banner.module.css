@@ -1,0 +1,67 @@
+.bannerWrapper {
+  position: relative;
+  height: 100px;
+
+  /* border: solid red; */
+  /* z-index: -1; */
+
+  margin-bottom: 20px;
+}
+
+.banner {
+  width: 100%;
+  height: 100%;
+  background-color: var(--backgroundColor);
+
+  border-radius: 4px;
+  padding: 5px;
+
+  display: grid;
+  place-items: center;
+
+
+  transition: transform 1.3s ease-in-out;
+  transform: translateY(-110%);
+  opacity: 0;
+}
+
+.banner.slideIn {
+  transform: translateY(10%);
+  opacity: 1;
+}
+
+.banner.slideOut {
+  transform: translateY(-110%);
+}
+
+.winner {
+  background-color: green;
+}
+
+.loser {
+  background-color: red;
+}
+
+.message {
+  text-align: center;
+}
+
+.answer {
+  font-weight: bold;
+}
+
+.playAgainButton {
+  font-size: 0.7rem;
+  color: white;
+  border: solid white 1px;
+  border-radius: 13px;
+  padding: 2px 8px;
+
+  transition: opacity 2s ease-in-out;
+  transition-delay: 2s;
+  opacity: 0;
+}
+
+.playAgainButton.appear {
+  opacity: 1;
+}

@@ -1,19 +1,21 @@
+import { LETTER_STATUS } from "./constants.js";
+
 /**
  * Thanks to Github user dylano for supplying a more-accurate
  * solving algorithm!
  */
 
-export function checkGuess(guess, answer) {
+export function checkGuessDefault(guess, answer) {
   // This constant is a placeholder that indicates we've successfully
   // dealt with this character (it's correct, or misplaced).
-  const SOLVED_CHAR = '✓';
+  const SOLVED_CHAR = "✓";
 
   if (!guess) {
     return null;
   }
 
-  const guessChars = guess.toUpperCase().split('');
-  const answerChars = answer.split('');
+  const guessChars = guess.toUpperCase().split("");
+  const answerChars = answer.split("");
 
   const result = [];
 
@@ -22,7 +24,7 @@ export function checkGuess(guess, answer) {
     if (guessChars[i] === answerChars[i]) {
       result[i] = {
         letter: guessChars[i],
-        status: 'correct',
+        status: LETTER_STATUS.CORRECT,
       };
       answerChars[i] = SOLVED_CHAR;
       guessChars[i] = SOLVED_CHAR;
@@ -36,12 +38,14 @@ export function checkGuess(guess, answer) {
       continue;
     }
 
-    let status = 'incorrect';
+    let status = LETTER_STATUS.ABSENT;
     const misplacedIndex = answerChars.findIndex(
       (char) => char === guessChars[i]
     );
+
+    console.log("misplacedIndex " + guessChars[i] + " - ", misplacedIndex);
     if (misplacedIndex >= 0) {
-      status = 'misplaced';
+      status = LETTER_STATUS.PRESENT;
       answerChars[misplacedIndex] = SOLVED_CHAR;
     }
 
@@ -53,3 +57,23 @@ export function checkGuess(guess, answer) {
 
   return result;
 }
+
+export const checkGuess = (guess, answer) => {
+  const chars = guess.toUpperCase().split("");
+
+  const result = chars.map((char, index) => {
+    if (answer[index] === char) {
+      // correct
+      return { letter: char, status: LETTER_STATUS.CORRECT };
+    } else if (answer.includes(guess[index])) {
+      // present
+      return { letter: char, status: LETTER_STATUS.PRESENT };
+    } else {
+      // absent
+      return { letter: char, status: LETTER_STATUS.ABSENT };
+    }
+  });
+
+  return result;
+}
+
