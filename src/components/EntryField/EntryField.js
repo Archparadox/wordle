@@ -28,6 +28,7 @@ function EntryField({
         disabled={!enabled}
         className={styles.textInput}
         type="text"
+        minLength="5"
         maxLength="5"
         value={currentGuess}
         // onChange={(event) => handleInputChange(event.nativeEvent.data)}

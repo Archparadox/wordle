@@ -1,11 +1,6 @@
 .bannerWrapper {
   position: relative;
-  height: 100px;
-
-  /* border: solid red; */
-  /* z-index: -1; */
-
-  margin-bottom: 20px;
+  height: var(--banner-height);
 }
 
 .banner {
@@ -19,49 +14,23 @@
   display: grid;
   place-items: center;
 
-
-  transition: transform 1.3s ease-in-out;
-  transform: translateY(-110%);
-  opacity: 0;
+  animation: slideDown 1000ms ease-out forwards;
 }
-
-.banner.slideIn {
-  transform: translateY(10%);
-  opacity: 1;
-}
-
-.banner.slideOut {
-  transform: translateY(-110%);
+@keyframes slideDown {
+  from {
+    transform: translateY(-110%);
+    opacity: 0.7;
+  }
+  to {
+    transform: translateY(0%);
+    opacity: 1;
+  }
 }
 
 .winner {
-  background-color: green;
+  background-color: var(--color-success);
 }
 
 .loser {
-  background-color: red;
-}
-
-.message {
-  text-align: center;
-}
-
-.answer {
-  font-weight: bold;
-}
-
-.playAgainButton {
-  font-size: 0.7rem;
-  color: white;
-  border: solid white 1px;
-  border-radius: 13px;
-  padding: 2px 8px;
-
-  transition: opacity 2s ease-in-out;
-  transition-delay: 2s;
-  opacity: 0;
-}
-
-.playAgainButton.appear {
-  opacity: 1;
+  background-color: var(--color-error);
 }

@@ -3,5 +3,5 @@
   flex-direction: column;
   background-color: white;
   gap: 5px;
-  z-index: 2;
+  /* z-index: 1; */
 }

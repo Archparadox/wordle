@@ -43,7 +43,10 @@ export function checkGuessDefault(guess, answer) {
       (char) => char === guessChars[i]
     );
 
-    console.log("misplacedIndex " + guessChars[i] + " - ", misplacedIndex);
+    console.log(
+      "misplacedIndex " + guessChars[i] + " - ",
+      misplacedIndex
+    );
     if (misplacedIndex >= 0) {
       status = LETTER_STATUS.PRESENT;
       answerChars[misplacedIndex] = SOLVED_CHAR;
@@ -75,5 +78,4 @@ export const checkGuess = (guess, answer) => {
   });
 
   return result;
-}
-
+};

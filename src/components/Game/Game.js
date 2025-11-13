@@ -1,6 +1,5 @@
 import React from "react";
 
-import Banner from "../Banner";
 import Board from "../Board";
 import EntryField from "../EntryField";
 import Keyboard from "../Keyboard";
@@ -11,17 +10,25 @@ import { WORDS } from "../../data";
 import styles from "./Game.module.css";
 import { checkGuess } from "../../game-helpers";
 import { check } from "prettier";
-import { LETTER_STATUS, LETTERS } from "../../constants";
+import {
+  GAME_STATUS,
+  LETTER_STATUS,
+  LETTERS,
+  NUM_OF_GUESSES_ALLOWED,
+} from "../../constants";
+import BannerWin from "../BannerWin/BannerWin";
+import BannerLose from "../BannerLose/BannerLose";
 
 // Pick a random word on every pageload.
 function Game() {
-  const [guesses, setGuesses] = React.useState([]);
-  const [currentGuess, setCurrentGuess] = React.useState("");
-  const [isGameOver, setIsGameOver] = React.useState(false);
-  const [isWinner, setIsWinner] = React.useState(false);
-  const [answer, setAnwser] = React.useState(sample(WORDS));
+  const [answer, setAnwser] = React.useState(() => sample(WORDS));
   const [lettersStatus, setLettersStatus] = React.useState(
     setUpLettersInitial(LETTERS)
+  );
+  const [guesses, setGuesses] = React.useState([]);
+  const [currentGuess, setCurrentGuess] = React.useState("");
+  const [gameStatus, setGameStatus] = React.useState(
+    GAME_STATUS.PLAYING
   );
 
   console.info({ answer });
@@ -29,14 +36,13 @@ function Game() {
   const handleResetGame = () => {
     setGuesses([]);
     setCurrentGuess("");
-    setIsGameOver(false);
-    setIsWinner(false);
+    setGameStatus(GAME_STATUS.PLAYING);
     setAnwser(sample(WORDS));
     setLettersStatus(setUpLettersInitial(LETTERS));
   };
 
   const handleKeyboardButtonPress = (keyInput) => {
-    if (isGameOver) {
+    if (gameStatus !== GAME_STATUS.PLAYING) {
       return;
     }
 
@@ -68,24 +74,23 @@ function Game() {
     }
 
     const newGuess = checkGuess(currentGuess, answer);
-
     updateLettersStatus(newGuess);
-    setGuesses([...guesses, newGuess]);
+    const newGuesses = [...guesses, newGuess];
+    setGuesses(newGuesses);
     setCurrentGuess("");
-    checkIfGameOver(currentGuess);
+    checkIfGameOver(newGuesses);
   };
 
-  const checkIfGameOver = (guess) => {
-    if (guess === answer || guesses.length > 4) {
-      setIsGameOver(true);
+  const checkIfGameOver = (totalGuesses) => {
+    const currentNumberOfGuesses = totalGuesses.length;
+    const lastGuess = totalGuesses[currentNumberOfGuesses - 1]
+      .map((obj) => obj.letter)
+      .join("");
 
-      checkIfWinner(guess);
-    }
-  };
-
-  const checkIfWinner = (guess) => {
-    if (guess === answer) {
-      setIsWinner(true);
+    if (lastGuess === answer) {
+      setGameStatus(GAME_STATUS.WON);
+    } else if (currentNumberOfGuesses >= NUM_OF_GUESSES_ALLOWED) {
+      setGameStatus(GAME_STATUS.LOST);
     }
   };
 
@@ -109,19 +114,35 @@ function Game() {
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [currentGuess, setCurrentGuess, isGameOver]);
+  }, [currentGuess, setCurrentGuess, gameStatus]);
+
+  let banner;
+  if (gameStatus === GAME_STATUS.WON) {
+    banner = (
+      <BannerWin
+        gameStatus={gameStatus}
+        handleResetGame={handleResetGame}
+      />
+    );
+  } else if (gameStatus === GAME_STATUS.LOST) {
+    banner = (
+      <BannerLose
+        gameStatus={gameStatus}
+        answer={answer}
+        handleResetGame={handleResetGame}
+      />
+    );
+  }
 
   return (
     <div className={styles.game}>
       <Board guesses={guesses} currentGuess={currentGuess} />
-      <Banner
-        isGameOver={isGameOver}
-        isWinner={isWinner}
-        answer={answer}
-        handleResetGame={handleResetGame}
-      />
+      <div className={styles.bannerContainer}>
+        <div className={styles.fadeInBar} />
+        {banner}
+      </div>
       {/* <EntryField
-        enabled={!isGameOver}
+        enabled={gameStatus !== GAME_STATUS.PLAYING}
         handleSubmitGuess={handleSubmitGuess}
         currentGuess={currentGuess}
         setCurrentGuess={setCurrentGuess}

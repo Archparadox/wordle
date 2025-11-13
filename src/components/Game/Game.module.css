@@ -1,5 +1,24 @@
 .game {
   display: flex;
   flex-direction: column;
+}
 
+.bannerContainer {
+  --banner-height: 100px;
+  --padding: 20px;
+  position: relative;
+  height: calc(var(--banner-height) + (var(--padding) * 2));
+  padding: var(--padding) 0;
+  overflow: hidden;
+}
+
+.fadeInBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  /* margin-top: -20px; */
+  background: linear-gradient(to bottom, white, transparent);
+  z-index: 1;
 }

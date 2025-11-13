@@ -9,11 +9,17 @@ export const LETTER_STATUS = {
   UNUSED: "UNUSED",
 };
 
-export const LETTER_COLORS = {
-  CORRECT: "green",
-  PRESENT: "yellow",
-  ABSENT: "gray",
-  UNUSED: "white",
+export const STATUS_COLORS = {
+  CORRECT: "var(--color-success)",
+  PRESENT: "var(--color-warning)",
+  ABSENT: "var(--color-gray-500)",
+  UNUSED: "var(--color-gray-900)",
+};
+
+export const GAME_STATUS = {
+  PLAYING: "PLAYING",
+  WON: "WON",
+  LOST: "LOST",
 };
 
 export const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";

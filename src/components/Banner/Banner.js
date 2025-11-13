@@ -1,38 +1,21 @@
 import React from "react";
 
 import styles from "./Banner.module.css";
+import { GAME_STATUS } from "../../constants";
 
-function Banner({ isGameOver, isWinner, answer, handleResetGame }) {
-  const winMessage = <p>Winner!</p>;
-  const loseMessage = (
-    <p className={styles.message}>
-      Game Over
-      <br />
-      the word was <span className={styles.answer}>{answer}</span>
-    </p>
-  );
-  const message = isWinner ? winMessage : loseMessage;
+function Banner({ children, gameStatus }) {
+  let statusStyles;
+  if (gameStatus === GAME_STATUS.WON) {
+    statusStyles = styles.winner;
+  } else if (gameStatus === GAME_STATUS.LOST) {
+    statusStyles = styles.loser;
+  }
 
   return (
     <div className={styles.bannerWrapper}>
-      {
-        <div
-          className={`${styles.banner} ${
-            isWinner ? styles.winner : styles.loser
-          } ${isGameOver ? styles.slideIn : styles.slideOut}`}
-        >
-          {message}
-          <button
-            className={`${styles.playAgainButton} ${
-              isGameOver ? styles.appear : ""
-            }`}
-            onClick={handleResetGame}
-            disabled={!isGameOver}
-          >
-            Play Again ?
-          </button>
-        </div>
-      }
+      <div className={`${styles.banner} ${statusStyles}`}>
+        {children}
+      </div>
     </div>
   );
 }
