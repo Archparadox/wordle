@@ -10,6 +10,7 @@ import {
 import styles from "./Board.module.css";
 
 function Board({ guesses, currentGuess }) {
+  console.info("Board render", { guesses, currentGuess });
   const activeGuess = currentGuess?.split("").map((letter) => ({
     letter,
     status: LETTER_STATUS.UNUSED,
@@ -17,9 +18,24 @@ function Board({ guesses, currentGuess }) {
 
   return (
     <div className={styles.board}>
-      {range(NUM_ROWS).map((num, index) => (
-        <Row key={num} letters={[...guesses, activeGuess]?.[index]} />
-      ))}
+      {range(NUM_ROWS).map((num, index) => {
+        let letters = [];
+
+        if (index < guesses.length) {
+          letters = guesses[index];
+        } else if (index === guesses.length) {
+          letters = activeGuess;
+        } else {
+          letters = [];
+        }
+
+        return (
+          <Row
+            key={num}
+            letters={letters}
+          />
+        );
+      })}
     </div>
   );
 }

@@ -1,35 +1,35 @@
 import React from "react";
 
 import Board from "../Board";
-import EntryField from "../EntryField";
 import Keyboard from "../Keyboard";
-
-import { sample, setUpLettersInitial } from "../../utils";
-import { WORDS } from "../../data";
-
-import styles from "./Game.module.css";
-import { checkGuess } from "../../game-helpers";
-import { check } from "prettier";
-import {
-  GAME_STATUS,
-  LETTER_STATUS,
-  LETTERS,
-  NUM_OF_GUESSES_ALLOWED,
-} from "../../constants";
 import BannerWin from "../BannerWin/BannerWin";
 import BannerLose from "../BannerLose/BannerLose";
+import { LettersStatusContext } from "../ContextProviders/LettersStatusProvider/LettersStatusProvider";
 
-// Pick a random word on every pageload.
+import useKeypress from "../../hooks/useKeypress";
+import { checkGuess } from "../../game-helpers";
+import { sample } from "../../utils";
+import { WORDS } from "../../data";
+import {
+  GAME_STATUS,
+  NUM_OF_GUESSES_ALLOWED,
+  WORD_LENGTH,
+} from "../../constants";
+
+import styles from "./Game.module.css";
+
 function Game() {
   const [answer, setAnwser] = React.useState(() => sample(WORDS));
-  const [lettersStatus, setLettersStatus] = React.useState(
-    setUpLettersInitial(LETTERS)
-  );
   const [guesses, setGuesses] = React.useState([]);
   const [currentGuess, setCurrentGuess] = React.useState("");
   const [gameStatus, setGameStatus] = React.useState(
     GAME_STATUS.PLAYING
   );
+
+  const currentGuessRef = React.useRef(currentGuess);
+
+  const { updateLettersStatus, resetLettersStatus } =
+    React.useContext(LettersStatusContext);
 
   console.info({ answer });
 
@@ -38,50 +38,48 @@ function Game() {
     setCurrentGuess("");
     setGameStatus(GAME_STATUS.PLAYING);
     setAnwser(sample(WORDS));
-    setLettersStatus(setUpLettersInitial(LETTERS));
+    resetLettersStatus();
   };
 
-  const handleKeyboardButtonPress = (keyInput) => {
-    if (gameStatus !== GAME_STATUS.PLAYING) {
+  const handleSubmitGuess = React.useCallback(() => {
+    const guess = currentGuessRef.current;
+    if (guess.length !== WORD_LENGTH) {
       return;
     }
 
-    const key = keyInput.toUpperCase();
-
-    if (key === "⌫") {
-      setCurrentGuess(currentGuess.slice(0, -1));
-    } else if (key === "↵") {
-      handleSubmitGuess();
-    } else if (currentGuess.length < 5 && /^[A-Z]$/.test(key)) {
-      setCurrentGuess(currentGuess + key);
-    }
-  };
-
-  const updateLettersStatus = (checkedGuess) => {
-    const nextLettersStatus = { ...lettersStatus };
-    checkedGuess.forEach(({ letter, status }) => {
-      if (status === LETTER_STATUS.ABSENT) {
-        nextLettersStatus[letter] = { letter, status };
-      }
-    });
-
-    setLettersStatus(nextLettersStatus);
-  };
-
-  const handleSubmitGuess = () => {
-    if (currentGuess.length !== 5) {
-      return;
-    }
-
-    const newGuess = checkGuess(currentGuess, answer);
+    const newGuess = checkGuess(guess, answer);
     updateLettersStatus(newGuess);
-    const newGuesses = [...guesses, newGuess];
-    setGuesses(newGuesses);
+
+    setGuesses((nextGeuesses) => [...nextGeuesses, newGuess]);
     setCurrentGuess("");
-    checkIfGameOver(newGuesses);
-  };
+  }, []);
+
+  const handleKeyboardButtonPress = React.useCallback(
+    (keyInput) => {
+      if (gameStatus !== GAME_STATUS.PLAYING) {
+        return;
+      }
+
+      const key = keyInput.toUpperCase();
+
+      if (key === "⌫") {
+        setCurrentGuess((prevGuess) => prevGuess.slice(0, -1));
+      } else if (key === "↵") {
+        handleSubmitGuess();
+      } else if (/^[A-Z]$/.test(key)) {
+        setCurrentGuess((prevGuess) =>
+          prevGuess.length >= WORD_LENGTH
+            ? prevGuess
+            : prevGuess + key
+        );
+      }
+    },
+    [handleSubmitGuess]
+  );
 
   const checkIfGameOver = (totalGuesses) => {
+    if (totalGuesses.length === 0) return;
+
     const currentNumberOfGuesses = totalGuesses.length;
     const lastGuess = totalGuesses[currentNumberOfGuesses - 1]
       .map((obj) => obj.letter)
@@ -94,45 +92,36 @@ function Game() {
     }
   };
 
+  const banner = React.useMemo(() => {
+    if (gameStatus === GAME_STATUS.WON) {
+      return (
+        <BannerWin
+          gameStatus={gameStatus}
+          handleResetGame={handleResetGame}
+        />
+      );
+    } else if (gameStatus === GAME_STATUS.LOST) {
+      return (
+        <BannerLose
+          gameStatus={gameStatus}
+          answer={answer}
+          handleResetGame={handleResetGame}
+        />
+      );
+    } else {
+      return null;
+    }
+  }, [gameStatus]);
+
+  useKeypress(handleKeyboardButtonPress);
+
   React.useEffect(() => {
-    const handleKeyPress = (event) => {
-      if (event.metaKey || event.ctrlKey || event.altKey) {
-        return;
-      }
+    currentGuessRef.current = currentGuess;
+  }, [currentGuess]);
 
-      const key = event.key;
-      if (key === "Backspace") {
-        handleKeyboardButtonPress("⌫");
-      } else if (key === "Enter") {
-        handleKeyboardButtonPress("↵");
-      } else {
-        handleKeyboardButtonPress(key);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyPress);
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-    };
-  }, [currentGuess, setCurrentGuess, gameStatus]);
-
-  let banner;
-  if (gameStatus === GAME_STATUS.WON) {
-    banner = (
-      <BannerWin
-        gameStatus={gameStatus}
-        handleResetGame={handleResetGame}
-      />
-    );
-  } else if (gameStatus === GAME_STATUS.LOST) {
-    banner = (
-      <BannerLose
-        gameStatus={gameStatus}
-        answer={answer}
-        handleResetGame={handleResetGame}
-      />
-    );
-  }
+  React.useEffect(() => {
+    checkIfGameOver(guesses);
+  }, [guesses]);
 
   return (
     <div className={styles.game}>
@@ -149,7 +138,7 @@ function Game() {
       /> */}
       <Keyboard
         handleKeyboardButtonPress={handleKeyboardButtonPress}
-        lettersStatus={lettersStatus}
+        // lettersStatus={lettersStatus}
       />
     </div>
   );
