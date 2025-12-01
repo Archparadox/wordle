@@ -2,8 +2,11 @@ import React from "react";
 
 import styles from "./Keyboard.module.css";
 import KeyboardRow from "../KeyboardRow";
+import { LettersStatusContext } from "../ContextProviders/LettersStatusProvider/LettersStatusProvider";
 
-function Keyboard({ handleKeyboardButtonPress, lettersStatus }) {
+function Keyboard({ handleKeyboardButtonPress }) {
+  const { lettersStatus } = React.use(LettersStatusContext);
+
   const row1 = "QWERTYUIOP";
   const row2 = "ASDFGHJKL";
   const row3 = "↵ZXCVBNM⌫";
@@ -36,4 +39,4 @@ function Keyboard({ handleKeyboardButtonPress, lettersStatus }) {
   );
 }
 
-export default Keyboard;
+export default React.memo(Keyboard);

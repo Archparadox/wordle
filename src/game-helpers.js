@@ -79,3 +79,23 @@ export const checkGuess = (guess, answer) => {
 
   return result;
 };
+
+export const mergeLettersStatus = (
+  checkedGuess,
+  currentLettersStatus
+) => {
+  const nextLettersStatus = { ...currentLettersStatus };
+
+  checkedGuess.forEach(({ letter, status }) => {
+    if (
+      status === LETTER_STATUS.ABSENT ||
+      status === LETTER_STATUS.CORRECT ||
+      (status === LETTER_STATUS.PRESENT &&
+        nextLettersStatus[letter]?.status !== LETTER_STATUS.CORRECT)
+    ) {
+      nextLettersStatus[letter] = { letter, status };
+    }
+  });
+
+  return nextLettersStatus;
+};

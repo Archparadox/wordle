@@ -2,6 +2,7 @@ import React from "react";
 
 import styles from "./CellClickable.module.css";
 import Cell from "../Cell";
+import { LettersStatusContext } from "../ContextProviders/LettersStatusProvider/LettersStatusProvider";
 
 function CellClickable({
   letter,
@@ -13,12 +14,18 @@ function CellClickable({
   if (!/[a-zA-Z]/.test(letter))
     dimensions.width = "clamp(27px, 10.5vw, 61px)";
 
+  const { lettersStatus } = React.useContext(LettersStatusContext);
+
   return (
     <button
       onClick={() => handleKeyboardButtonPress(letter)}
       className={styles.cellClickable}
     >
-      <Cell letter={letter} status={status} dimensions={dimensions} />
+      <Cell
+        letter={letter}
+        status={lettersStatus?.[letter]?.status}
+        dimensions={dimensions}
+      />
     </button>
   );
 }

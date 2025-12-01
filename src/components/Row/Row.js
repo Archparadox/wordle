@@ -6,8 +6,24 @@ import { WORD_LENGTH } from "../../constants";
 
 import styles from "./Row.module.css";
 
-function Row({ length = WORD_LENGTH, letters}) {
-  // console.log("Row letters:", letters);
+const rowLettersAreEqualComparator = (prevProps, nextProps) => {
+  const prev = prevProps.letters;
+  const next = nextProps.letters;
+  if (!prev && !next) return true;
+  if (!prev || !next) return false;
+  if (prev.length !== next.length) return false;
+  for (let i = 0; i < prev.length; i++) {
+    const p = prev[i];
+    const n = next[i];
+    if (!p && !n) continue;
+    if (!p || !n) return false;
+    if (p.letter !== n.letter || p.status !== n.status) return false;
+  }
+  return true;
+};
+
+const Row = ({ length = WORD_LENGTH, letters }) => {
+  console.log("Row letters:", letters);
 
   return (
     <div className={styles.row}>
@@ -22,6 +38,6 @@ function Row({ length = WORD_LENGTH, letters}) {
       })}
     </div>
   );
-}
+};
 
-export default Row;
+export default React.memo(Row, rowLettersAreEqualComparator);
