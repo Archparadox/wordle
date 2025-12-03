@@ -23,8 +23,6 @@ const rowLettersAreEqualComparator = (prevProps, nextProps) => {
 };
 
 const Row = ({ length = WORD_LENGTH, letters }) => {
-  console.log("Row letters:", letters);
-
   return (
     <div className={styles.row}>
       {range(length).map((_, index) => {

@@ -1,4 +1,5 @@
 import React from "react";
+import useSWR from "swr";
 
 import Board from "../Board";
 import Keyboard from "../Keyboard";
@@ -17,6 +18,26 @@ import {
 } from "../../constants";
 
 import styles from "./Game.module.css";
+import useValidateWord from "../../hooks/useValidateWord";
+
+
+const fetcher = async (endpoint) => {
+  const response = await fetch(endpoint, {
+    cache: "no-store",
+  });
+
+  if (response.status === 404) {
+    console.log("word not found");
+    return false;
+  }
+
+  if (!response.ok) {
+    console.log("Network response was not ok", response.status);
+    return false;
+  }
+
+  return true;
+};
 
 function Game() {
   const [answer, setAnwser] = React.useState(() => sample(WORDS));
@@ -25,7 +46,6 @@ function Game() {
   const [gameStatus, setGameStatus] = React.useState(
     GAME_STATUS.PLAYING
   );
-
   const currentGuessRef = React.useRef(currentGuess);
 
   const { updateLettersStatus, resetLettersStatus } =
@@ -41,17 +61,13 @@ function Game() {
     resetLettersStatus();
   };
 
-  const handleSubmitGuess = React.useCallback(() => {
+  const handleSubmitGuess = React.useCallback(async () => {
     const guess = currentGuessRef.current;
     if (guess.length !== WORD_LENGTH) {
       return;
     }
 
-    const newGuess = checkGuess(guess, answer);
-    updateLettersStatus(newGuess);
-
-    setGuesses((nextGeuesses) => [...nextGeuesses, newGuess]);
-    setCurrentGuess("");
+    validateWord(guess);
   }, []);
 
   const handleKeyboardButtonPress = React.useCallback(
@@ -114,6 +130,19 @@ function Game() {
   }, [gameStatus]);
 
   useKeypress(handleKeyboardButtonPress);
+
+  const { validateWord } = useValidateWord({
+    fetcher,
+    onValidWord: () => {
+      const guess = currentGuessRef.current;
+
+      const newGuess = checkGuess(guess, answer);
+      updateLettersStatus(newGuess);
+
+      setGuesses((nextGeuesses) => [...nextGeuesses, newGuess]);
+      setCurrentGuess("");
+    },
+  });
 
   React.useEffect(() => {
     currentGuessRef.current = currentGuess;

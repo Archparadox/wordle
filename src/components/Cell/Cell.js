@@ -17,4 +17,4 @@ function Cell({ letter, status, dimensions }) {
   );
 }
 
-export default Cell;
+export default React.memo(Cell);
